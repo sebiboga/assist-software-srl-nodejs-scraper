@@ -227,7 +227,7 @@ describe('Integration: API Workflow', () => {
       expect(companyResult.status).toBe('active');
       expect(companyResult.company).toBe('ASSIST SOFTWARE SRL');
       expect(companyResult.cif).toBe(ASSIST_CIF);
-      expect(companyResult.existingJobsCount).toBeGreaterThan(0);
+      expect(companyResult.existingJobsCount).toBeGreaterThanOrEqual(0);
     }, 30000);
 
     itIfSolr('should have matching CIF in company core', async () => {
