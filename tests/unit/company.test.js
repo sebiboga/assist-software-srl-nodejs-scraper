@@ -188,13 +188,24 @@ describe('company.js', () => {
       fs.writeFileSync(COMPANY_JSON_PATH, JSON.stringify(cachedData), 'utf-8');
     });
 
-    it('should use cached company data when available', async () => {
+    it('should use live ANAF data when cache and network available', async () => {
+      mockFetch
+        .mockResolvedValue(anafCompanyResponse({ cui: 2693736, name: 'ASSIST SOFTWARE SRL', inactive: false }));
       const result = await company.getCompanyData();
 
       expect(result.company).toBe('ASSIST SOFTWARE SRL');
       expect(result.cif).toBe('2693736');
       expect(result.active).toBe(true);
-      expect(mockFetch).not.toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalled();
+    });
+
+    it('should fall back to cached data when ANAF fails', async () => {
+      mockFetch.mockRejectedValue(new Error('Network error'));
+      const result = await company.getCompanyData();
+
+      expect(result.company).toBe('ASSIST SOFTWARE SRL');
+      expect(result.cif).toBe('2693736');
+      expect(result.active).toBe(true);
     });
   });
 
