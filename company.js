@@ -178,18 +178,27 @@ export async function getCompanyData() {
 
     return { company, cif, active, anafData };
   } else {
-    console.log(`Using cached company data for CIF: ${cachedData.summary.cif}`);
-    const anafData = cachedData.anaf;
+    console.log(`Cached company found for CIF: ${cachedData.summary.cif}`);
+    console.log("Will verify with live ANAF data, fallback to cache on failure...");
 
-    console.log(`Cached name: ${anafData.name}`);
-    console.log(`Cached CUI: ${anafData.cui}`);
-    console.log(`Cached status: ${anafData.inactive ? "INACTIVE" : "ACTIVE"}`);
-
-    const company = anafData.name.toUpperCase();
-    const cif = anafData.cui.toString();
-    const active = !anafData.inactive;
-
-    return { company, cif, active, anafData };
+    try {
+      const liveAnafData = await getCompanyFromANAFWithFallback(cachedData.summary.cif, cachedData.anaf);
+      const company = liveAnafData.name.toUpperCase();
+      const cif = liveAnafData.cui.toString();
+      const active = !liveAnafData.inactive;
+      console.log(`Live ANAF: ${company}, status: ${active ? "ACTIVE" : "INACTIVE"}`);
+      return { company, cif, active, anafData: liveAnafData };
+    } catch (_) {
+      console.log(`Live ANAF unavailable, using cache...`);
+      const anafData = cachedData.anaf;
+      console.log(`Cached name: ${anafData.name}`);
+      console.log(`Cached CUI: ${anafData.cui}`);
+      console.log(`Cached status: ${anafData.inactive ? "INACTIVE" : "ACTIVE"}`);
+      const company = anafData.name.toUpperCase();
+      const cif = anafData.cui.toString();
+      const active = !anafData.inactive;
+      return { company, cif, active, anafData };
+    }
   }
 }
 
