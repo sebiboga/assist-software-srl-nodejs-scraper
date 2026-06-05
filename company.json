@@ -1,0 +1,44 @@
+{
+  "validatedAt": "2026-06-05T09:24:43.742Z",
+  "source": "ANAF",
+  "brand": "ASSIST SOFTWARE",
+  "anaf": {
+    "cui": 2693736,
+    "name": "ASSIST SOFTWARE SRL",
+    "address": "STR. UNIVERSITĂȚII, 13C, BIROUL 1, Suceava, Suceava",
+    "caenCode": "6201",
+    "inactive": true,
+    "registrationNumber": "J33/123/1992",
+    "vatRegistered": true,
+    "eFacturaRegistered": false,
+    "onrcStatusLabel": "Funcțiune",
+    "legalForm": "SRL",
+    "headquartersAddress": {
+      "locality": "Suceava"
+    },
+    "administrators": [
+      {
+        "name": "ADMINISTRATOR NAME",
+        "role": "administrator"
+      }
+    ],
+    "authorizedCaenCodes": [
+      "6201",
+      "6202",
+      "6209"
+    ]
+  },
+  "peviitor": null,
+  "summary": {
+    "company": "ASSIST SOFTWARE SRL",
+    "cif": "2693736",
+    "active": false,
+    "inactiveSince": null,
+    "reactivatedSince": null,
+    "address": "STR. UNIVERSITĂȚII, 13C, BIROUL 1, Suceava, Suceava",
+    "registrationNumber": "J33/123/1992",
+    "caenCode": "6201",
+    "vatRegistered": true,
+    "eFacturaRegistered": false
+  }
+}

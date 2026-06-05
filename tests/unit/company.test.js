@@ -94,6 +94,7 @@ describe('company.js', () => {
 
   beforeEach(() => {
     mockFetch.mockReset();
+    mockFetch.mockResolvedValue(solrResponse(0, []));
     if (fs.existsSync(COMPANY_JSON_PATH)) {
       fs.unlinkSync(COMPANY_JSON_PATH);
     }

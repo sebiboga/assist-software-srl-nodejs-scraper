@@ -15,6 +15,23 @@ let COMPANY_NAME = null;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const KNOWN_TAGS = [
+  "Go", "Golang", "Java", "Python", "JavaScript", "TypeScript", "Node.js", "Node",
+  "React", "Angular", "Vue", "Next.js", "Nuxt",
+  "C#", ".NET", ".Net", "C++", "Rust", "Ruby", "PHP", "Scala", "Kotlin", "Swift",
+  "MySQL", "PostgreSQL", "MongoDB", "Redis", "Elasticsearch", "Cassandra", "MariaDB",
+  "AWS", "Azure", "GCP", "Docker", "Kubernetes", "Terraform", "CI/CD", "Jenkins",
+  "Git", "Linux", "REST", "GraphQL", "gRPC", "Microservices",
+  "HTML", "CSS", "Sass", "Tailwind", "Bootstrap",
+  "Spring", "Spring Boot", "Hibernate", "JPA", "Jakarta",
+  "Express", "Fastify", "NestJS", "Django", "Flask", "FastAPI", "Laravel", "Symfony",
+  "Android", "iOS", "React Native", "Flutter", "Unity",
+  "Machine Learning", "AI", "Deep Learning", "NLP", "TensorFlow", "PyTorch",
+  "Kafka", "RabbitMQ", "ActiveMQ", "NATS",
+  "Prometheus", "Grafana", "Datadog", "New Relic",
+  "Agile", "Scrum", "Kanban", "Jira", "Confluence"
+];
+
 async function fetchJobsPage(pageNum) {
   const url = `${JOB_BASE}/jobs?page=${pageNum}`;
   const res = await fetch(url, {
@@ -76,6 +93,43 @@ function parseJobsPage(html) {
   return jobs;
 }
 
+async function fetchJobTags(url) {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "job_seeker_ro_spider",
+        "Accept": "text/html"
+      }
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    return parseJobTags(html);
+  } catch {
+    return [];
+  }
+}
+
+function parseJobTags(html) {
+  const $ = cheerio.load(html);
+  const allText = $('li.leading-20px').map((_, el) => $(el).text()).get().join(" ");
+  const lowercaseText = allText.toLowerCase();
+  const found = [];
+  for (const tag of KNOWN_TAGS) {
+    const lowerTag = tag.toLowerCase();
+    const firstChar = lowerTag[0];
+    if (/[a-z0-9]/.test(firstChar)) {
+      const escaped = lowerTag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+      if (regex.test(lowercaseText)) {
+        found.push(lowerTag);
+      }
+    } else if (lowercaseText.includes(lowerTag)) {
+      found.push(lowerTag);
+    }
+  }
+  return [...new Set(found)];
+}
+
 async function scrapeAllListings(testOnlyOnePage = false) {
   const allJobs = [];
   const seenUrls = new Set();
@@ -122,6 +176,21 @@ async function scrapeAllListings(testOnlyOnePage = false) {
   }
 
   console.log(`Total unique jobs collected: ${allJobs.length}`);
+
+  if (!testOnlyOnePage && allJobs.length > 0) {
+    console.log("\nFetching tags from job detail pages...");
+    for (let i = 0; i < allJobs.length; i++) {
+      const job = allJobs[i];
+      console.log(`  [${i + 1}/${allJobs.length}] ${job.title}`);
+      const tags = await fetchJobTags(job.url);
+      if (tags.length > 0) {
+        job.tags = tags;
+        console.log(`    tags: ${tags.join(", ")}`);
+      }
+      await sleep(500);
+    }
+  }
+
   return allJobs;
 }
 
@@ -239,7 +308,7 @@ async function main() {
   }
 }
 
-export { parseJobsPage, mapToJobModel, transformJobsForSOLR };
+export { parseJobsPage, parseJobTags, fetchJobTags, mapToJobModel, transformJobsForSOLR };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();

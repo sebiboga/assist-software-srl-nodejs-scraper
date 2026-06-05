@@ -219,4 +219,72 @@ describe('index.js Component Tests', () => {
       expect(result[1].workmode).toBe('remote');
     });
   });
+
+  describe('parseJobTags', () => {
+    it('should return empty array for HTML with no job description', () => {
+      const result = index.parseJobTags('<html></html>');
+      expect(result).toEqual([]);
+    });
+
+    it('should extract known tech tags from job description', () => {
+      const html = `
+        <html>
+          <ul>
+            <li class="leading-20px">Design and develop backend services in Go</li>
+            <li class="leading-20px">Experience with MySQL and Redis</li>
+            <li class="leading-20px">Build REST APIs</li>
+            <li class="leading-20px">Work with AWS cloud platform</li>
+            <li class="leading-20px">CI/CD pipelines with Docker and Kubernetes</li>
+          </ul>
+        </html>
+      `;
+
+      const result = index.parseJobTags(html);
+
+      expect(result).toContain('go');
+      expect(result).toContain('mysql');
+      expect(result).toContain('redis');
+      expect(result).toContain('rest');
+      expect(result).toContain('aws');
+      expect(result).toContain('ci/cd');
+      expect(result).toContain('docker');
+      expect(result).toContain('kubernetes');
+    });
+
+    it('should return unique tags only', () => {
+      const html = `
+        <html>
+          <ul>
+            <li class="leading-20px">Strong Java skills with Spring Boot</li>
+            <li class="leading-20px">Expert Java developer</li>
+            <li class="leading-20px">Spring and Hibernate experience</li>
+          </ul>
+        </html>
+      `;
+
+      const result = index.parseJobTags(html);
+
+      const javaCount = result.filter(t => t === 'java').length;
+      expect(javaCount).toBe(1);
+      expect(result).toContain('spring');
+      expect(result).toContain('spring boot');
+      expect(result).toContain('hibernate');
+    });
+
+    it('should not extract non-tech words as tags', () => {
+      const html = `
+        <html>
+          <ul>
+            <li class="leading-20px">Great communication skills</li>
+            <li class="leading-20px">Team player mentality</li>
+            <li class="leading-20px">Problem-solving abilities</li>
+          </ul>
+        </html>
+      `;
+
+      const result = index.parseJobTags(html);
+
+      expect(result).toEqual([]);
+    });
+  });
 });
