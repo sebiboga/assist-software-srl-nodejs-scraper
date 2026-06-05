@@ -193,7 +193,7 @@ async function main() {
         website: ["https://assist-software.net"],
         career: ["https://assist-software.net/jobs"],
         lastScraped: new Date().toISOString().split('T')[0],
-        scraperFile: "https://raw.githubusercontent.com/sebiboga/assist-software-srl-nodejs-scraper/master/.github/workflows/scrape.yml"
+        scraperFile: "https://raw.githubusercontent.com/sebiboga/assist-software-srl-nodejs-scraper/main/.github/workflows/scrape.yml"
       });
     } catch (err) {
       console.log(`Note: Could not upsert company to SOLR core: ${err.message}`);
